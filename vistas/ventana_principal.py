@@ -15,7 +15,6 @@ class VentanaPrincipal(tk.Tk):
         self.crear_interfaz()
 
     def crear_interfaz(self):
-
         contenedor = ttk.Frame(self, padding=30)
         contenedor.pack(fill="both", expand=True)
 
@@ -60,8 +59,19 @@ class VentanaPrincipal(tk.Tk):
                 font=("Arial", 11)
             ).pack(anchor="w", pady=5)
 
+        # Los botones van aquí, dentro de crear_interfaz
+        ttk.Button(
+            contenedor,
+            text="Gestionar estudiantes",
+            command=self.abrir_estudiantes
+        ).pack(pady=8)
+
         ttk.Button(
             contenedor,
             text="Salir del sistema",
             command=self.destroy
         ).pack(pady=20)
+
+    def abrir_estudiantes(self):
+        from vistas.ventana_estudiantes import VentanaEstudiantes
+        VentanaEstudiantes(self)
