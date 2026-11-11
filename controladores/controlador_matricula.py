@@ -2,26 +2,45 @@
 
 from modelos.excepciones import CuposAgotadosException, HorarioDuplicadoException
 from modelos.matricula import Matricula
+from base_datos.conexion_matricula import ConexionMatricula  # <-- Importante
 
 class ControladorMatricula:
     def __init__(self):
+        self.db = ConexionMatricula()  # <-- Inicializa la conexión SQLite aquí
         self.lista_matriculas = []
 
     def matricular_estudiante(self, estudiante, grupo):
-        # 1. Validación de Cupos (RF-08)
+        # 1. Validación de existencia del estudiante
+        if not estudiante or not getattr(estudiante, 'codigo', None):
+            raise EstudianteNoEncontradoException()
+
+        # 2. Validación de existencia del grupo
+        if not grupo:
+            raise Exception("Error: El grupo de laboratorio seleccionado no es válido.")
+
+        # 3. Validación de duplicidad (Evitar doble inscripción al mismo grupo)
+        if estudiante in grupo.inscritos:
+            raise YaMatriculadoException()
+        
+        # 4. Validación de Cupos (RF-08)
         if len(grupo.inscritos) >= grupo.capacidad_maxima:
             raise CuposAgotadosException()
 
-        # 2. Validación de Cruce de Horarios (RF-09)
+        # 5. Validación de Cruce de Horarios (RF-09)
         for mat in self.lista_matriculas:
             if mat.estudiante.codigo == estudiante.codigo:
                 if (mat.grupo_laboratorio.dia == grupo.dia and 
                     mat.grupo_laboratorio.hora_inicio == grupo.hora_inicio):
                     raise HorarioDuplicadoException()
 
-        # 3. Registro Exitoso (RF-07)
+        # 6. Registro Exitoso (RF-07)
         id_mat = f"MAT-{len(self.lista_matriculas) + 1:03d}"
         nueva_matricula = Matricula(id_mat, estudiante, grupo)
+
+        # ---> GUARDAR EN SQLITE <---
+        exito = self.db.guardar_matricula(nueva_matricula)
+        if not exito:
+            raise Exception("Error al registrar la matrícula en la base de datos.")
         
         # Añadir al grupo y al sistema
         grupo.inscritos.append(estudiante)
