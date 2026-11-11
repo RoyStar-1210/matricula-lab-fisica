@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
-
+from vistas.ventana_matricula import VentanaMatricula
+from controladores.controlador_matricula import ControladorMatricula
 
 class VentanaPrincipal(tk.Tk):
     def __init__(self):
@@ -16,6 +17,7 @@ class VentanaPrincipal(tk.Tk):
 
         ttk.Label(contenedor, text="Sistema de Matrícula",
                   font=("Arial", 24, "bold")).pack(pady=15)
+       
         ttk.Label(contenedor, text="Gestión de Laboratorios de Física",
                   font=("Arial", 14)).pack(pady=10)
         ttk.Separator(contenedor, orient="horizontal").pack(fill="x", pady=15)
@@ -29,6 +31,16 @@ class VentanaPrincipal(tk.Tk):
             "Inscripción y cancelación de matrículas",
             "Consultas y reportes"
         ]
+        # Inicializamos tu controlador de matrículas de forma limpia
+        self.controlador_mat = ControladorMatricula()
+
+        # Creamos el botón estético para abrir tu módulo de matrículas
+        btn_abrir_matriculas = ttk.Button(
+            contenedor, 
+            text="Abrir Módulo de Matrículas", 
+            command=lambda: VentanaMatricula(self, self.controlador_mat)
+        )
+        btn_abrir_matriculas.pack(pady=15)
         for modulo in modulos:
             ttk.Label(seccion, text="• " + modulo, font=("Arial", 10)).pack(anchor="w", pady=3)
 
